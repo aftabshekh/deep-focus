@@ -54,15 +54,13 @@ CLIENT_URL=http://localhost:5173
 GEMINI_API_KEY=your_gemini_api_key
 NODE_ENV=development
 ```
-
 ## 📁 Project Structure
-
 deep-focus/
 ├── client/          → React frontend (port 5173)
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   └── data/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       └── data/
 └── server/          → Node backend (port 5000)
 ├── config/
 ├── controllers/
