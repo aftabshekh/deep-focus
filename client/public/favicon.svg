@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#0a6e3f"/>
+
+  <!-- Book shape -->
+  <rect x="8" y="9" width="7" height="14" rx="1.5" fill="white" opacity="0.95"/>
+  <rect x="17" y="9" width="7" height="14" rx="1.5" fill="white" opacity="0.75"/>
+
+  <!-- Book spine line -->
+  <rect x="15.2" y="9" width="1.6" height="14" fill="#0a6e3f"/>
+
+  <!-- Lines on left page -->
+  <rect x="10" y="12" width="3.5" height="1" rx="0.5" fill="#0a6e3f" opacity="0.4"/>
+  <rect x="10" y="14.5" width="3.5" height="1" rx="0.5" fill="#0a6e3f" opacity="0.4"/>
+  <rect x="10" y="17" width="2.5" height="1" rx="0.5" fill="#0a6e3f" opacity="0.4"/>
+
+  <!-- Lines on right page -->
+  <rect x="18.5" y="12" width="3.5" height="1" rx="0.5" fill="#0a6e3f" opacity="0.3"/>
+  <rect x="18.5" y="14.5" width="3.5" height="1" rx="0.5" fill="#0a6e3f" opacity="0.3"/>
+  <rect x="18.5" y="17" width="2.5" height="1" rx="0.5" fill="#0a6e3f" opacity="0.3"/>
+
+  <!-- Green dot (like logo) -->
+  <circle cx="24" cy="8" r="3.5" fill="#1ec97a"/>
+</svg>
