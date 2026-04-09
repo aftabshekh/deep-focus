@@ -7,7 +7,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On app load — restore session if token exists
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
@@ -23,10 +22,10 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // ✅ FIXED — register ke baad login nahi hoga, sirf message return karega
   const register = useCallback(async (name, email, password) => {
     const res = await api.post('/auth/register', { name, email, password });
-    localStorage.setItem('accessToken', res.data.accessToken);
-    setUser(res.data.user);
+    // accessToken ya user set NAHI karo — email verify hone ke baad login hoga
     return res.data;
   }, []);
 
@@ -41,43 +40,37 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post('/auth/logout');
     } catch {
-      // silently ignore if server is unreachable
+      // silently ignore
     }
     localStorage.removeItem('accessToken');
     setUser(null);
   }, []);
 
-  // Enroll in a course — saves to MongoDB
   const enrollCourse = useCallback(async (courseId) => {
     const res = await api.post(`/courses/enroll/${courseId}`);
     return res.data;
   }, []);
 
-  // Get enrolled courses from DB
   const getMyCourses = useCallback(async () => {
     const res = await api.get('/courses/my');
     return res.data;
   }, []);
 
-  // Update course progress
   const updateCourseProgress = useCallback(async (courseId, progress) => {
     const res = await api.put(`/courses/progress/${courseId}`, { progress });
     return res.data;
   }, []);
 
-  // Start reading a book — saves to MongoDB
   const startBook = useCallback(async (bookId) => {
     const res = await api.post(`/books/start/${bookId}`);
     return res.data;
   }, []);
 
-  // Get my books from DB
   const getMyBooks = useCallback(async () => {
     const res = await api.get('/books/my');
     return res.data;
   }, []);
 
-  // Update book reading progress
   const updateBookProgress = useCallback(async (bookId, currentChapter) => {
     const res = await api.put(`/books/progress/${bookId}`, { currentChapter });
     return res.data;
