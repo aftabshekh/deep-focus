@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
     completed:      { type: Boolean, default: false },
   }],
   refreshToken: { type: String, default: null },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String, default: null },
+
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

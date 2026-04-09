@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User.js';
+import { sendVerificationEmail } from '../utils/sendEmail.js';
 
 const generateAccessToken  = (id) => jwt.sign({ id }, process.env.JWT_ACCESS_SECRET,  { expiresIn: '15m' });
 const generateRefreshToken = (id) => jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
@@ -19,14 +21,37 @@ export const register = asyncHandler(async (req, res) => {
   if (!name || !email || !password) { res.status(400); throw new Error('All fields required'); }
   if (await User.findOne({ email })) { res.status(400); throw new Error('Email already registered'); }
 
-  const user = await User.create({ name, email, password });
-  const accessToken  = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
-  user.refreshToken  = refreshToken;
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+
+  const user = await User.create({ 
+    name, 
+    email, 
+    password,
+    verificationToken,
+    isVerified: false,
+  });
+
+  await sendVerificationEmail(email, verificationToken);
+
+  res.status(201).json({ 
+    message: 'Registration successful! Please check your email to verify your account.' 
+  });
+});
+
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const user = await User.findOne({ verificationToken: token });
+
+  if (!user) {
+    res.status(400); 
+    throw new Error('Invalid or expired verification link.');
+  }
+
+  user.isVerified = true;
+  user.verificationToken = null;
   await user.save();
-  setRefreshCookie(res, refreshToken);
-  const safeUser = user.toJSON();
-  res.status(201).json({ user: safeUser, accessToken });
+
+  res.json({ message: 'Email verified successfully! You can now login.' });
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -35,6 +60,12 @@ export const login = asyncHandler(async (req, res) => {
   if (!user || !(await user.matchPassword(password))) {
     res.status(401); throw new Error('Invalid email or password');
   }
+
+  if (!user.isVerified) {
+    res.status(403); 
+    throw new Error('Please verify your email before logging in.');
+  }
+
   const accessToken  = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
   user.refreshToken  = refreshToken;
