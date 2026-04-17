@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 export default function VerifyEmail() {
   const { token } = useParams();
@@ -10,9 +10,9 @@ export default function VerifyEmail() {
   useEffect(() => {
     const verify = async () => {
       try {
-        await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/verify-email/${token}`);
+        await api.get(`/auth/verify-email/${token}`);
         setStatus('success');
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate('/'), 3000);
       } catch {
         setStatus('error');
       }
@@ -57,7 +57,7 @@ export default function VerifyEmail() {
             <h2 style={{ color: '#ef4444', fontSize: '24px', marginBottom: '8px' }}>Invalid Link</h2>
             <p style={{ color: '#94a3b8', marginBottom: '24px' }}>Link invalid ya expire ho gaya hai.</p>
             <button
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/')}
               style={{
                 background: '#2563eb',
                 color: 'white',
