@@ -6,6 +6,11 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  // Without these, a blocked/slow SMTP port makes sendMail() hang forever
+  // with no error — which froze the whole "Creating account..." request.
+  connectionTimeout: 10000, // 10s to establish connection
+  greetingTimeout: 10000,   // 10s to receive greeting after connecting
+  socketTimeout: 15000,     // 15s of inactivity on the socket
 });
 
 export const sendVerificationEmail = async (toEmail, token) => {

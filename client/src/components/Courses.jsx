@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { COURSES, COURSE_FILTERS } from "../data/courses";
 import { useAuth } from "../context/AuthContext";
 
+const LEVEL_STYLES = {
+  Beginner:     { bg: "#e6f7ee", color: "#0a6e3f" },
+  Intermediate: { bg: "#fff6db", color: "#a3720c" },
+  Advanced:     { bg: "#ffe8e8", color: "#c92a2a" },
+};
+
 export default function Courses({ onEnroll }) {
   const { user, enrollCourse, getMyCourses } = useAuth();
   const [activeFilter, setActiveFilter] = useState("all");
@@ -80,15 +86,51 @@ export default function Courses({ onEnroll }) {
         {filtered.map((course) => {
           const enrolled = enrolledIds.includes(course.id);
           const isLoading = loadingId === course.id;
+          const level = LEVEL_STYLES[course.level] || LEVEL_STYLES.Beginner;
+
           return (
             <div key={course.id} className="course-card">
               <div className={`course-thumb ${course.thumbClass}`}>
                 {course.emoji}
+                {course.level && (
+                  <span
+                    className="course-level-badge"
+                    style={{ background: level.bg, color: level.color }}
+                  >
+                    {course.level}
+                  </span>
+                )}
               </div>
+
               <div className="course-body">
                 <span className="course-tag">{course.tag}</span>
                 <div className="course-title">{course.title}</div>
-                <div className="course-desc">{course.desc}</div>
+                <p className="course-desc">{course.desc}</p>
+
+                {/* Readable quick-facts row: duration + lessons */}
+                {(course.duration || course.lessons) && (
+                  <div className="course-facts">
+                    {course.duration && (
+                      <span className="course-fact">
+                        <svg viewBox="0 0 24 24" className="course-fact-icon">
+                          <circle cx="12" cy="12" r="9" />
+                          <polyline points="12 7 12 12 15.5 14" />
+                        </svg>
+                        {course.duration}
+                      </span>
+                    )}
+                    {course.lessons && (
+                      <span className="course-fact">
+                        <svg viewBox="0 0 24 24" className="course-fact-icon">
+                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                        </svg>
+                        {course.lessons} lessons
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="course-meta">
                   <div className="course-rating">
                     <span className="star">★</span>

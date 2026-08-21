@@ -22,10 +22,10 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ FIXED — register ke baad login nahi hoga, sirf message return karega
   const register = useCallback(async (name, email, password) => {
     const res = await api.post('/auth/register', { name, email, password });
-    // accessToken ya user set NAHI karo — email verify hone ke baad login hoga
+    localStorage.setItem('accessToken', res.data.accessToken);
+    setUser(res.data.user);
     return res.data;
   }, []);
 

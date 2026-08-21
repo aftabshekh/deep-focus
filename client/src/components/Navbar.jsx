@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function Navbar({ onSignIn, onGetStarted, user, onDashboard, onLogout }) {
+export default function Navbar({ onSignIn, onGetStarted, user, onDashboard, onLogout, onAiTutor }) {
   const [activeLink, setActiveLink] = useState("hero");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef(null);
@@ -95,6 +95,24 @@ export default function Navbar({ onSignIn, onGetStarted, user, onDashboard, onLo
           </div>
         </li>
 
+        <li>
+          <a
+            href="#ai-tutor"
+            onClick={(e) => { e.preventDefault(); onAiTutor(); }}
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+          >
+            🤖 AI Tutor
+            <span style={{
+              fontSize: ".6rem", fontWeight: 700, color: "#0a6e3f", background: "#e6f7ee",
+              padding: "1px 7px", borderRadius: "50px", fontFamily: "'JetBrains Mono',monospace",
+              display: "inline-flex", alignItems: "center", gap: "4px", lineHeight: 1.6,
+            }}>
+              <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#1ec97a" }} />
+              LIVE
+            </span>
+          </a>
+        </li>
+
         <li><a href="#how" className={activeLink === "how" ? "active" : ""} onClick={() => scrollTo("how")}>Workspace</a></li>
         <li><a href="#roadmap" className={activeLink === "roadmap" ? "active" : ""} onClick={() => scrollTo("roadmap")}>Roadmap</a></li>
       </ul>
@@ -128,6 +146,7 @@ export default function Navbar({ onSignIn, onGetStarted, user, onDashboard, onLo
                   { emoji:"📚", label:"My Courses", onClick:() => scrollTo("courses-section") },
                   { emoji:"📖", label:"My Books",   onClick:() => scrollTo("books-section") },
                   { emoji:"⏱️", label:"Workspace",  onClick:() => scrollTo("how") },
+                  { emoji:"🤖", label:"AI Tutor",   onClick:onAiTutor },
                 ].map((item) => (
                   <button key={item.label} onClick={() => { item.onClick(); setShowUserMenu(false); }}
                     style={{ width:"100%", padding:"11px 16px", background:"none", border:"none", textAlign:"left", cursor:"pointer", display:"flex", alignItems:"center", gap:"10px", fontSize:".86rem", color:"#0a1a12", fontFamily:"'DM Sans',sans-serif", transition:"background .15s" }}

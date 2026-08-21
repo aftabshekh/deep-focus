@@ -11,7 +11,6 @@ import Courses from "./components/Courses";
 import Roadmap from "./components/Roadmap";
 import { CTA, Footer } from "./components/CtaFooter";
 import Dashboard from "./components/Dashboard";
-import VerifyEmail from "./pages/VerifyEmail";
 
 /* ── MODAL OVERLAY ── */
 function Modal({ title, message, emoji, onClose, actions }) {
@@ -63,8 +62,8 @@ function SignInModal({ onClose, onSwitch, onLogin }) {
     if (!email || !pass) { setError("Please fill all fields"); return; }
     setLoading(true); setError("");
     try {
-      await onLogin(email, pass);
-      onClose("signin");
+      const data = await onLogin(email, pass);
+      onClose("signin", data?.user?.name);
     } catch (err) {
       setError(err.response?.data?.message || "Login failed! Check your credentials.");
     } finally { setLoading(false); }
@@ -109,38 +108,18 @@ function SignUpModal({ onClose, onSwitch, onRegister }) {
   const [pass, setPass]   = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async () => {
     if (!name || !email || !pass) { setError("Please fill all fields"); return; }
     if (pass.length < 6) { setError("Password must be at least 6 characters"); return; }
     setLoading(true); setError("");
     try {
-      await onRegister(name, email, pass);
-      setSuccess(true); // ✅ email verify message dikhao
+      const data = await onRegister(name, email, pass);
+      onClose("signup", data?.user?.name); // logged in immediately — no email verification step
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed! Try again.");
     } finally { setLoading(false); }
   };
-
-  // ✅ Success state — email verify karo message
-  if (success) {
-    return (
-      <div onClick={(e) => e.target === e.currentTarget && onClose()} style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(5,20,10,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
-        <div style={{ background:"#fff", borderRadius:"24px", padding:"40px", maxWidth:"420px", width:"100%", textAlign:"center", boxShadow:"0 32px 80px rgba(0,0,0,.25)" }}>
-          <div style={{ fontSize:"3rem", marginBottom:"16px" }}>📧</div>
-          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.4rem", color:"#0a1a12", marginBottom:"10px" }}>Check Your Email!</h2>
-          <p style={{ color:"#5a7a68", fontSize:".95rem", lineHeight:1.6, marginBottom:"28px" }}>
-            We've sent a verification link to <strong>{email}</strong>.<br/>
-            Please click the link to activate your account.
-          </p>
-          <button onClick={onClose} style={{ padding:"11px 28px", borderRadius:"50px", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:".92rem", border:"none", background:"#0a6e3f", color:"#fff" }}>
-            Got it! ✅
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div onClick={(e) => e.target === e.currentTarget && onClose()} style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(5,20,10,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px", animation:"mfade .2s ease" }}>
@@ -220,6 +199,7 @@ function EnrollModal({ course, onClose }) {
 function MainPage() {
   const { user, login, register, logout } = useAuth();
   const [modal, setModal]                 = useState(null);
+  const [dashboardTab, setDashboardTab]   = useState("overview");
   const [enrolledCourse, setEnrolledCourse] = useState(null);
   const [toasts, setToasts]               = useState([]);
 
@@ -229,12 +209,23 @@ function MainPage() {
     setTimeout(() => setToasts((p) => p.filter((t) => t.id !== id)), 3000);
   };
 
-  const handleSignInClose = (type) => {
+  const handleSignInClose = (type, name) => {
     setModal(null);
-    if (type === "signin") addToast(`Welcome back, ${user?.name || ""}! 👋`, "👋");
+    if (type === "signin") addToast(`Welcome back, ${name || ""}! 👋`, "👋");
+    if (type === "signup") addToast(`Welcome to Deep Focus, ${name || ""}! 🎉`, "🎉");
   };
 
-  const handleDashboard = () => setModal("dashboard");
+  const handleDashboard = () => { setDashboardTab("overview"); setModal("dashboard"); };
+
+  const handleAiTutor = () => {
+    if (!user) {
+      setModal("signin");
+      addToast("Please sign in to chat with the AI Tutor!", "🔒");
+      return;
+    }
+    setDashboardTab("ai");
+    setModal("dashboard");
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -260,6 +251,7 @@ function MainPage() {
         user={user}
         onDashboard={handleDashboard}
         onLogout={handleLogout}
+        onAiTutor={handleAiTutor}
       />
       <Hero onGetStarted={() => setModal("signup")} />
       <StatsRow />
@@ -271,7 +263,7 @@ function MainPage() {
       <CTA onGetStarted={() => setModal("signup")} onWatchDemo={() => setModal("demo")} />
       <Footer />
 
-      {modal === "dashboard" && <Dashboard onClose={() => setModal(null)} />}
+      {modal === "dashboard" && <Dashboard onClose={() => setModal(null)} initialTab={dashboardTab} />}
       {modal === "signin"    && <SignInModal onClose={handleSignInClose} onSwitch={() => setModal("signup")} onLogin={login} />}
       {modal === "signup"    && <SignUpModal onClose={handleSignInClose} onSwitch={() => setModal("signin")} onRegister={register} />}
       {modal === "demo"      && <DemoModal onClose={() => setModal(null)} />}
@@ -288,7 +280,6 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/verify-email/:token" element={<VerifyEmail />} />
       </Routes>
     </BrowserRouter>
   );

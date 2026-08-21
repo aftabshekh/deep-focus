@@ -9,6 +9,9 @@ export const COURSES = [
     desc: "Arrays, Linked Lists, Trees, Graphs, DP — everything you need to crack FAANG interviews.",
     rating: "4.9",
     students: "8.2k",
+    level: "Intermediate",
+    duration: "42h",
+    lessons: 96,
   },
   {
     id: 2,
@@ -20,6 +23,9 @@ export const COURSES = [
     desc: "Build and deploy full-stack apps with React, Node.js, Express & MongoDB Atlas from scratch.",
     rating: "4.8",
     students: "6.5k",
+    level: "Beginner",
+    duration: "38h",
+    lessons: 84,
   },
   {
     id: 3,
@@ -31,6 +37,9 @@ export const COURSES = [
     desc: "Design scalable systems like Twitter, Netflix & Uber. Learn load balancing, caching, sharding.",
     rating: "5.0",
     students: "4.1k",
+    level: "Advanced",
+    duration: "26h",
+    lessons: 52,
   },
   {
     id: 4,
@@ -42,6 +51,9 @@ export const COURSES = [
     desc: "NumPy, Pandas, Scikit-learn, PyTorch — build real ML models from classification to neural nets.",
     rating: "4.7",
     students: "3.8k",
+    level: "Intermediate",
+    duration: "34h",
+    lessons: 71,
   },
   {
     id: 5,
@@ -53,6 +65,9 @@ export const COURSES = [
     desc: "Master PostgreSQL, MongoDB, Redis — indexing strategies, query optimization & schema design.",
     rating: "4.8",
     students: "2.9k",
+    level: "Intermediate",
+    duration: "22h",
+    lessons: 48,
   },
   {
     id: 6,
@@ -64,6 +79,9 @@ export const COURSES = [
     desc: "Containerize and deploy apps at scale. GitHub Actions, AWS, Terraform — production-ready skills.",
     rating: "4.9",
     students: "3.2k",
+    level: "Advanced",
+    duration: "30h",
+    lessons: 63,
   },
 ];
 

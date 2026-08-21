@@ -1003,7 +1003,6 @@ nav {
 .np-kw {
   color: var(--g2);
 }
-
 /* ── COURSES ── */
 .courses-section {
   padding: 100px 48px;
@@ -1036,9 +1035,11 @@ nav {
 .courses-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 28px;
 }
 .course-card {
+  display: flex;
+  flex-direction: column;
   border-radius: 20px;
   border: 1.5px solid var(--border);
   overflow: hidden;
@@ -1058,12 +1059,25 @@ nav {
   position: relative;
   overflow: hidden;
   font-size: 3rem;
+  flex-shrink: 0;
 }
 .course-thumb::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.08));
+}
+.course-level-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 4px 11px;
+  border-radius: 50px;
+  z-index: 1;
 }
 .ct-dsa {
   background: linear-gradient(135deg, #d6fae9, #a8f0cc);
@@ -1084,7 +1098,10 @@ nav {
   background: linear-gradient(135deg, #ffedd5, #fed7aa);
 }
 .course-body {
-  padding: 20px;
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 .course-tag {
   font-size: 0.7rem;
@@ -1097,28 +1114,62 @@ nav {
   padding: 3px 10px;
   border-radius: 50px;
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  width: fit-content;
 }
 .course-title {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.08rem;
   color: var(--dark);
-  margin-bottom: 8px;
-  line-height: 1.3;
+  margin-bottom: 10px;
+  line-height: 1.4;
+  min-height: 2.8em;
 }
 .course-desc {
-  font-size: 0.83rem;
+  font-size: 0.86rem;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.65;
+  margin: 0 0 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 4.1em;
+}
+.course-facts {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.course-fact {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  font-family: "Inter", sans-serif;
+}
+.course-fact-icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 .course-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
+  margin-top: auto;
 }
 .course-rating {
   display: flex;
@@ -1135,24 +1186,25 @@ nav {
 .course-students {
   font-size: 0.78rem;
   color: var(--muted);
+  font-weight: 400;
 }
 .course-enroll {
-  padding: 7px 18px;
+  padding: 8px 20px;
   border-radius: 50px;
   background: var(--g1);
   color: #fff;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
   font-family: "Inter", sans-serif;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 .course-enroll:hover {
   background: var(--g2);
   transform: scale(1.04);
 }
-
 /* ── ROADMAP ── */
 .roadmap {
   padding: 100px 48px;

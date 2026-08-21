@@ -188,12 +188,12 @@ function EmptyState({ emoji, text, sub }) {
 }
 
 // ── MAIN DASHBOARD ──
-export default function Dashboard({ onClose }) {
+export default function Dashboard({ onClose, initialTab = "overview" }) {
   const { user, getMyCourses, getMyBooks } = useAuth();
   const [courses, setCourses]     = useState([]);
   const [books, setBooks]         = useState([]);
   const [loading, setLoading]     = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     if (!user) return;
