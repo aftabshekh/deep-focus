@@ -3,10 +3,12 @@ import { useState, useEffect, useRef } from "react";
 export default function Navbar({ onSignIn, onGetStarted, user, onDashboard, onLogout, onAiTutor }) {
   const [activeLink, setActiveLink] = useState("hero");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
+      setScrolled(window.scrollY > 8);
       const sections = ["hero","books-section","features","courses-section","how","roadmap"];
       for (const id of [...sections].reverse()) {
         const el = document.getElementById(id);
@@ -35,7 +37,7 @@ export default function Navbar({ onSignIn, onGetStarted, user, onDashboard, onLo
   };
 
   return (
-    <nav>
+    <nav className={scrolled ? "nav-scrolled" : ""}>
       <a href="#hero" className="logo">DeepFocus <span className="logo-dot" /></a>
 
       <ul className="nav-links">

@@ -11,6 +11,7 @@ import Courses from "./components/Courses";
 import Roadmap from "./components/Roadmap";
 import { CTA, Footer } from "./components/CtaFooter";
 import Dashboard from "./components/Dashboard";
+import useScrollReveal from "./hooks/useScrollReveal";
 
 /* ── MODAL OVERLAY ── */
 function Modal({ title, message, emoji, onClose, actions }) {
@@ -198,6 +199,7 @@ function EnrollModal({ course, onClose }) {
 /* ── MAIN PAGE ── */
 function MainPage() {
   const { user, login, register, logout } = useAuth();
+  useScrollReveal();
   const [modal, setModal]                 = useState(null);
   const [dashboardTab, setDashboardTab]   = useState("overview");
   const [enrolledCourse, setEnrolledCourse] = useState(null);

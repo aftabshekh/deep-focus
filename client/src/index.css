@@ -33,6 +33,36 @@ body {
   overflow-x: hidden;
 }
 
+/* ── SCROLL REVEAL ── */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal-item.in-view {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── ACCESSIBLE FOCUS STATES ── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2.5px solid var(--g2);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 /* ── NAVBAR ── */
 nav {
   position: fixed;
@@ -48,6 +78,12 @@ nav {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
+  box-shadow: 0 0 0 rgba(10, 26, 18, 0);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+nav.nav-scrolled {
+  box-shadow: 0 8px 28px rgba(10, 26, 18, 0.08);
+  border-bottom-color: transparent;
 }
 .logo {
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -400,6 +436,21 @@ nav {
   width: 100%;
   max-width: 480px;
   position: relative;
+  animation: heroFloat 6s ease-in-out infinite;
+}
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual {
+    animation: none;
+  }
 }
 .split-mockup {
   background: var(--white);
@@ -1003,6 +1054,7 @@ nav {
 .np-kw {
   color: var(--g2);
 }
+
 /* ── COURSES ── */
 .courses-section {
   padding: 100px 48px;
@@ -1205,6 +1257,7 @@ nav {
   background: var(--g2);
   transform: scale(1.04);
 }
+
 /* ── ROADMAP ── */
 .roadmap {
   padding: 100px 48px;
