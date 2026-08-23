@@ -1625,4 +1625,10 @@ footer {
   .roadmap {
     padding: 60px 20px;
   }
+  .auth-modal-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .auth-modal-grid > div:first-child {
+    display: none;
+  }
 }

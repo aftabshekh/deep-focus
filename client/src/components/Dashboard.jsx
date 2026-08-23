@@ -237,12 +237,15 @@ export default function Dashboard({ onClose, initialTab = "overview" }) {
       `}</style>
 
       <div style={{
-        width: "100%", maxWidth: "760px", maxHeight: "90vh",
+        width: "100%",
+        maxWidth: activeTab === "ai" ? "1040px" : "760px",
+        maxHeight: activeTab === "ai" ? "92vh" : "90vh",
         background: "#f4fdf8", borderRadius: "24px",
         display: "flex", flexDirection: "column",
         boxShadow: "0 40px 100px rgba(0,0,0,.3)",
         overflow: "hidden",
         animation: "dfadeIn .3s cubic-bezier(.16,1,.3,1)",
+        transition: "max-width .3s ease, max-height .3s ease",
       }}>
 
         {/* HEADER */}

@@ -52,10 +52,124 @@ function Toast({ toasts }) {
   );
 }
 
+/* ── AUTH ICONS ── */
+const IconMail = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="4" width="20" height="16" rx="3" /><path d="m22 7-10 6L2 7" />
+  </svg>
+);
+const IconLock = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+  </svg>
+);
+const IconUser = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" />
+  </svg>
+);
+const IconEye = (props) => (
+  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+const IconEyeOff = (props) => (
+  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61C3.35 8.36 1 12 1 12s4 7 11 7a9.26 9.26 0 0 0 5.39-1.61M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+    <path d="M1 1l22 22" />
+  </svg>
+);
+
+// Left branding panel shared by Sign In / Sign Up
+function AuthBrandPanel({ emoji, title, tagline }) {
+  const points = [
+    "50+ hands-on courses across DSA, Full-Stack & System Design",
+    "AI Tutor powered by Gemini — real-time, streamed answers",
+    "Split-view workspace built for deep, focused study sessions",
+  ];
+  return (
+    <div style={{
+      background: "linear-gradient(160deg,#0a6e3f,#0d3d24 120%)",
+      padding: "44px 36px", display: "flex", flexDirection: "column",
+      justifyContent: "space-between", position: "relative", overflow: "hidden",
+      minHeight: "100%",
+    }}>
+      <div style={{
+        position: "absolute", top: "-60px", right: "-60px", width: "220px", height: "220px",
+        borderRadius: "50%", background: "rgba(255,255,255,.06)",
+      }} />
+      <div style={{
+        position: "absolute", bottom: "-40px", left: "-40px", width: "160px", height: "160px",
+        borderRadius: "50%", background: "rgba(255,255,255,.05)",
+      }} />
+      <div style={{ position: "relative" }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,.12)",
+          display: "grid", placeItems: "center", fontSize: "1.7rem", marginBottom: 24,
+        }}>
+          {emoji}
+        </div>
+        <h2 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.6rem", color: "#fff", lineHeight: 1.25 }}>
+          {title}
+        </h2>
+        <p style={{ color: "rgba(255,255,255,.75)", fontSize: ".92rem", marginTop: 10, lineHeight: 1.5 }}>
+          {tagline}
+        </p>
+      </div>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 14, marginTop: 32 }}>
+        {points.map((p) => (
+          <div key={p} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+            <span style={{
+              width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,.15)",
+              display: "grid", placeItems: "center", flexShrink: 0, marginTop: 1, fontSize: ".68rem", color: "#8ff0c0",
+            }}>✓</span>
+            <span style={{ color: "rgba(255,255,255,.85)", fontSize: ".82rem", lineHeight: 1.5 }}>{p}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Reusable icon-prefixed input field
+function AuthField({ icon: Icon, label, type, value, onChange, placeholder, onKeyDown, showToggle, visible, onToggleVisible }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <label style={{ display: "block", fontSize: ".82rem", fontWeight: 600, color: "#0a1a12", marginBottom: 6 }}>{label}</label>
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <Icon style={{ position: "absolute", left: 14, color: "#8aab98", pointerEvents: "none" }} />
+        <input
+          type={showToggle ? (visible ? "text" : "password") : type}
+          value={value}
+          placeholder={placeholder}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          style={{
+            width: "100%", padding: showToggle ? "12px 44px 12px 42px" : "12px 16px 12px 42px",
+            borderRadius: 10, border: "1.5px solid #c6ead8", fontSize: ".92rem",
+            fontFamily: "'DM Sans',sans-serif", color: "#0a1a12", outline: "none", boxSizing: "border-box",
+          }}
+        />
+        {showToggle && (
+          <button
+            type="button"
+            onClick={onToggleVisible}
+            style={{ position: "absolute", right: 12, background: "none", border: "none", cursor: "pointer", color: "#8aab98", display: "flex" }}
+            aria-label={visible ? "Hide password" : "Show password"}
+          >
+            {visible ? <IconEyeOff /> : <IconEye />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── SIGN IN MODAL ── */
 function SignInModal({ onClose, onSwitch, onLogin }) {
   const [email, setEmail] = useState("");
   const [pass, setPass]   = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
@@ -73,30 +187,34 @@ function SignInModal({ onClose, onSwitch, onLogin }) {
   return (
     <div onClick={(e) => e.target === e.currentTarget && onClose()} style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(5,20,10,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px", animation:"mfade .2s ease" }}>
       <style>{`@keyframes mfade{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}} input:focus{outline:2px solid #12a05c !important;border-color:transparent !important;}`}</style>
-      <div style={{ background:"#fff", borderRadius:"24px", padding:"40px", maxWidth:"420px", width:"100%", boxShadow:"0 32px 80px rgba(0,0,0,.25)" }}>
-        <div style={{ textAlign:"center", marginBottom:"28px" }}>
-          <div style={{ fontSize:"2.5rem", marginBottom:"10px" }}>👋</div>
-          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.5rem", color:"#0a1a12" }}>Welcome Back!</h2>
-          <p style={{ color:"#5a7a68", fontSize:".88rem", marginTop:"6px" }}>Sign in to continue your deep work session</p>
+      <div style={{
+        background:"#fff", borderRadius:"24px", maxWidth:"780px", width:"100%",
+        boxShadow:"0 32px 80px rgba(0,0,0,.3)", overflow:"hidden",
+        display:"grid", gridTemplateColumns:"minmax(0,1fr) minmax(0,1.15fr)",
+      }} className="auth-modal-grid">
+        <AuthBrandPanel emoji="👋" title="Welcome back to Deep Focus" tagline="Sign in to pick up right where you left off." />
+
+        <div style={{ padding:"44px 40px" }}>
+          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.35rem", color:"#0a1a12", marginBottom:4 }}>Sign In</h2>
+          <p style={{ color:"#5a7a68", fontSize:".85rem", marginBottom:24 }}>Enter your details to continue</p>
+
+          {error && <div style={{ background:"#fff0f0", border:"1.5px solid #ffcccc", color:"#cc0000", borderRadius:"10px", padding:"10px 14px", fontSize:".84rem", marginBottom:"16px", textAlign:"center" }}>⚠️ {error}</div>}
+
+          <AuthField icon={IconMail} label="Email" type="email" value={email} placeholder="you@email.com"
+            onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} />
+          <AuthField icon={IconLock} label="Password" value={pass} placeholder="••••••••" showToggle visible={showPass}
+            onToggleVisible={() => setShowPass((p) => !p)}
+            onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} />
+
+          <button onClick={handleSubmit} disabled={loading} style={{ width:"100%", padding:"13px", borderRadius:"12px", border:"none", background:loading ? "#a8f0cc" : "#0a6e3f", color:"#fff", cursor:loading ? "not-allowed" : "pointer", fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1rem", marginTop:"8px", transition:"background .2s, transform .15s", boxShadow: loading ? "none" : "0 8px 20px rgba(10,110,63,.25)" }}>
+            {loading ? "Signing in..." : "Sign In →"}
+          </button>
+          <p style={{ textAlign:"center", marginTop:"20px", fontSize:".85rem", color:"#5a7a68" }}>
+            Don't have an account?{" "}
+            <span onClick={onSwitch} style={{ color:"#0a6e3f", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>Sign Up</span>
+          </p>
+          <button onClick={onClose} style={{ display:"block", margin:"10px auto 0", background:"none", border:"none", color:"#aac5b5", cursor:"pointer", fontSize:".82rem" }}>Cancel</button>
         </div>
-        {error && <div style={{ background:"#fff0f0", border:"1.5px solid #ffcccc", color:"#cc0000", borderRadius:"10px", padding:"10px 14px", fontSize:".84rem", marginBottom:"16px", textAlign:"center" }}>⚠️ {error}</div>}
-        {[
-          { label:"Email",    type:"email",    val:email, set:setEmail, placeholder:"you@email.com" },
-          { label:"Password", type:"password", val:pass,  set:setPass,  placeholder:"••••••••" },
-        ].map(({ label, type, val, set, placeholder }) => (
-          <div key={label} style={{ marginBottom:"16px" }}>
-            <label style={{ display:"block", fontSize:".82rem", fontWeight:600, color:"#0a1a12", marginBottom:"6px" }}>{label}</label>
-            <input type={type} value={val} placeholder={placeholder} onChange={(e) => set(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} style={{ width:"100%", padding:"11px 16px", borderRadius:"10px", border:"1.5px solid #c6ead8", fontSize:".92rem", fontFamily:"'DM Sans',sans-serif", color:"#0a1a12", outline:"none", boxSizing:"border-box" }} />
-          </div>
-        ))}
-        <button onClick={handleSubmit} disabled={loading} style={{ width:"100%", padding:"13px", borderRadius:"12px", border:"none", background:loading ? "#a8f0cc" : "#0a6e3f", color:"#fff", cursor:loading ? "not-allowed" : "pointer", fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1rem", marginTop:"8px", transition:"background .2s" }}>
-          {loading ? "Signing in..." : "Sign In →"}
-        </button>
-        <p style={{ textAlign:"center", marginTop:"20px", fontSize:".85rem", color:"#5a7a68" }}>
-          Don't have an account?{" "}
-          <span onClick={onSwitch} style={{ color:"#0a6e3f", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>Sign Up</span>
-        </p>
-        <button onClick={onClose} style={{ display:"block", margin:"10px auto 0", background:"none", border:"none", color:"#aac5b5", cursor:"pointer", fontSize:".82rem" }}>Cancel</button>
       </div>
     </div>
   );
@@ -107,6 +225,7 @@ function SignUpModal({ onClose, onSwitch, onRegister }) {
   const [name, setName]   = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass]   = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
@@ -124,31 +243,36 @@ function SignUpModal({ onClose, onSwitch, onRegister }) {
 
   return (
     <div onClick={(e) => e.target === e.currentTarget && onClose()} style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(5,20,10,.75)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px", animation:"mfade .2s ease" }}>
-      <div style={{ background:"#fff", borderRadius:"24px", padding:"40px", maxWidth:"420px", width:"100%", boxShadow:"0 32px 80px rgba(0,0,0,.25)" }}>
-        <div style={{ textAlign:"center", marginBottom:"28px" }}>
-          <div style={{ fontSize:"2.5rem", marginBottom:"10px" }}>🚀</div>
-          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.5rem", color:"#0a1a12" }}>Create Account</h2>
-          <p style={{ color:"#5a7a68", fontSize:".88rem", marginTop:"6px" }}>Join 12,000+ engineers on Deep Focus</p>
+      <div style={{
+        background:"#fff", borderRadius:"24px", maxWidth:"780px", width:"100%",
+        boxShadow:"0 32px 80px rgba(0,0,0,.3)", overflow:"hidden",
+        display:"grid", gridTemplateColumns:"minmax(0,1fr) minmax(0,1.15fr)",
+      }} className="auth-modal-grid">
+        <AuthBrandPanel emoji="🚀" title="Join 12,000+ engineers on Deep Focus" tagline="Create your free account and start learning in minutes." />
+
+        <div style={{ padding:"44px 40px" }}>
+          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.35rem", color:"#0a1a12", marginBottom:4 }}>Create Account</h2>
+          <p style={{ color:"#5a7a68", fontSize:".85rem", marginBottom:24 }}>It's free — no credit card needed</p>
+
+          {error && <div style={{ background:"#fff0f0", border:"1.5px solid #ffcccc", color:"#cc0000", borderRadius:"10px", padding:"10px 14px", fontSize:".84rem", marginBottom:"16px", textAlign:"center" }}>⚠️ {error}</div>}
+
+          <AuthField icon={IconUser} label="Full Name" type="text" value={name} placeholder="Alice Johnson"
+            onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} />
+          <AuthField icon={IconMail} label="Email" type="email" value={email} placeholder="you@email.com"
+            onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} />
+          <AuthField icon={IconLock} label="Password" value={pass} placeholder="6+ characters" showToggle visible={showPass}
+            onToggleVisible={() => setShowPass((p) => !p)}
+            onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} />
+
+          <button onClick={handleSubmit} disabled={loading} style={{ width:"100%", padding:"13px", borderRadius:"12px", border:"none", background:loading ? "#a8f0cc" : "#0a6e3f", color:"#fff", cursor:loading ? "not-allowed" : "pointer", fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1rem", marginTop:"8px", transition:"background .2s, transform .15s", boxShadow: loading ? "none" : "0 8px 20px rgba(10,110,63,.25)" }}>
+            {loading ? "Creating account..." : "Get Started Free →"}
+          </button>
+          <p style={{ textAlign:"center", marginTop:"20px", fontSize:".85rem", color:"#5a7a68" }}>
+            Already have an account?{" "}
+            <span onClick={onSwitch} style={{ color:"#0a6e3f", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>Sign In</span>
+          </p>
+          <button onClick={onClose} style={{ display:"block", margin:"10px auto 0", background:"none", border:"none", color:"#aac5b5", cursor:"pointer", fontSize:".82rem" }}>Cancel</button>
         </div>
-        {error && <div style={{ background:"#fff0f0", border:"1.5px solid #ffcccc", color:"#cc0000", borderRadius:"10px", padding:"10px 14px", fontSize:".84rem", marginBottom:"16px", textAlign:"center" }}>⚠️ {error}</div>}
-        {[
-          { label:"Full Name", type:"text",     val:name,  set:setName,  placeholder:"Alice Johnson" },
-          { label:"Email",     type:"email",    val:email, set:setEmail, placeholder:"you@email.com" },
-          { label:"Password",  type:"password", val:pass,  set:setPass,  placeholder:"6+ characters" },
-        ].map(({ label, type, val, set, placeholder }) => (
-          <div key={label} style={{ marginBottom:"14px" }}>
-            <label style={{ display:"block", fontSize:".82rem", fontWeight:600, color:"#0a1a12", marginBottom:"6px" }}>{label}</label>
-            <input type={type} value={val} placeholder={placeholder} onChange={(e) => set(e.target.value)} onKeyDown={(e) => e.key==="Enter" && handleSubmit()} style={{ width:"100%", padding:"11px 16px", borderRadius:"10px", border:"1.5px solid #c6ead8", fontSize:".92rem", fontFamily:"'DM Sans',sans-serif", color:"#0a1a12", outline:"none", boxSizing:"border-box" }} />
-          </div>
-        ))}
-        <button onClick={handleSubmit} disabled={loading} style={{ width:"100%", padding:"13px", borderRadius:"12px", border:"none", background:loading ? "#a8f0cc" : "#0a6e3f", color:"#fff", cursor:loading ? "not-allowed" : "pointer", fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1rem", marginTop:"8px", transition:"background .2s" }}>
-          {loading ? "Creating account..." : "Get Started Free →"}
-        </button>
-        <p style={{ textAlign:"center", marginTop:"20px", fontSize:".85rem", color:"#5a7a68" }}>
-          Already have an account?{" "}
-          <span onClick={onSwitch} style={{ color:"#0a6e3f", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>Sign In</span>
-        </p>
-        <button onClick={onClose} style={{ display:"block", margin:"10px auto 0", background:"none", border:"none", color:"#aac5b5", cursor:"pointer", fontSize:".82rem" }}>Cancel</button>
       </div>
     </div>
   );

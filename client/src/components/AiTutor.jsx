@@ -11,7 +11,91 @@ const SUGGESTIONS = [
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-// ── Small helper: render **bold**, `code`, and fenced ```code``` blocks ──
+// ── Inline formatting: **bold** and `code` ──
+function InlineFormat({ text }) {
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean);
+  return (
+    <>
+      {parts.map((p, j) => {
+        if (p.startsWith('**') && p.endsWith('**')) {
+          return <strong key={j} style={{ color: '#0a1a12' }}>{p.slice(2, -2)}</strong>;
+        }
+        if (p.startsWith('`') && p.endsWith('`')) {
+          return (
+            <code key={j} style={{
+              background: '#e6f7ee', color: '#0a6e3f', padding: '2px 6px',
+              borderRadius: 5, fontFamily: "'JetBrains Mono',monospace", fontSize: '.85em',
+            }}>{p.slice(1, -1)}</code>
+          );
+        }
+        return <span key={j}>{p}</span>;
+      })}
+    </>
+  );
+}
+
+// ── Block formatting: turns a chunk of plain text into headings, bullet
+// lists, numbered lists and paragraphs instead of showing raw #/* symbols ──
+function TextBlock({ text }) {
+  const lines = text.split('\n');
+  const elements = [];
+  let listBuffer = [];
+  let listType = null;
+  let key = 0;
+
+  const flushList = () => {
+    if (!listBuffer.length) return;
+    const items = listBuffer.map((item, i) => (
+      <li key={i} style={{ marginBottom: 4 }}><InlineFormat text={item} /></li>
+    ));
+    elements.push(
+      listType === 'ol'
+        ? <ol key={`l${key++}`} style={{ margin: '4px 0 10px', paddingLeft: 20 }}>{items}</ol>
+        : <ul key={`l${key++}`} style={{ margin: '4px 0 10px', paddingLeft: 20 }}>{items}</ul>
+    );
+    listBuffer = [];
+    listType = null;
+  };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    const headerMatch = trimmed.match(/^(#{1,4})\s+(.*)/);
+    const ulMatch = trimmed.match(/^[*-]\s+(.*)/);
+    const olMatch = trimmed.match(/^\d+\.\s+(.*)/);
+
+    if (headerMatch) {
+      flushList();
+      const level = headerMatch[1].length;
+      const fontSize = level <= 1 ? '1.02rem' : level === 2 ? '.96rem' : '.9rem';
+      elements.push(
+        <div key={`h${key++}`} style={{ fontWeight: 700, fontSize, color: '#0a1a12', margin: '10px 0 6px' }}>
+          <InlineFormat text={headerMatch[2]} />
+        </div>
+      );
+    } else if (ulMatch) {
+      listType = 'ul';
+      listBuffer.push(ulMatch[1]);
+    } else if (olMatch) {
+      listType = 'ol';
+      listBuffer.push(olMatch[1]);
+    } else if (trimmed === '') {
+      flushList();
+    } else {
+      flushList();
+      elements.push(
+        <p key={`p${key++}`} style={{ margin: '0 0 8px', whiteSpace: 'pre-wrap' }}>
+          <InlineFormat text={line} />
+        </p>
+      );
+    }
+  });
+  flushList();
+
+  return <>{elements}</>;
+}
+
+// ── Splits ```code``` fences from regular text, renders code blocks as
+// monospace boxes and everything else through TextBlock ──
 function FormattedText({ text }) {
   const blocks = text.split(/```/g);
   return (
@@ -34,25 +118,7 @@ function FormattedText({ text }) {
             </pre>
           );
         }
-        const parts = block.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean);
-        return (
-          <span key={i} style={{ whiteSpace: 'pre-wrap' }}>
-            {parts.map((p, j) => {
-              if (p.startsWith('**') && p.endsWith('**')) {
-                return <strong key={j} style={{ color: '#0a1a12' }}>{p.slice(2, -2)}</strong>;
-              }
-              if (p.startsWith('`') && p.endsWith('`')) {
-                return (
-                  <code key={j} style={{
-                    background: '#e6f7ee', color: '#0a6e3f', padding: '2px 6px',
-                    borderRadius: 5, fontFamily: "'JetBrains Mono',monospace", fontSize: '.85em',
-                  }}>{p.slice(1, -1)}</code>
-                );
-              }
-              return <span key={j}>{p}</span>;
-            })}
-          </span>
-        );
+        return <TextBlock key={i} text={block} />;
       })}
     </>
   );
@@ -80,7 +146,7 @@ function MessageBubble({ msg, onCopy, copied }) {
       flexDirection: isUser ? 'row-reverse' : 'row',
     }}>
       <div style={{
-        width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+        width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
         display: 'grid', placeItems: 'center', fontSize: '.9rem',
         background: isUser ? '#0a6e3f' : 'linear-gradient(135deg,#0a6e3f,#12a05c)',
         color: '#fff',
@@ -88,7 +154,7 @@ function MessageBubble({ msg, onCopy, copied }) {
         {isUser ? '🙂' : '🤖'}
       </div>
 
-      <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ maxWidth: '85%', display: 'flex', flexDirection: 'column', gap: 4 }}>
         {!isUser && msg.subject && (
           <div style={{
             fontSize: '.68rem', color: '#7a9a88', fontFamily: "'JetBrains Mono',monospace",
@@ -104,8 +170,8 @@ function MessageBubble({ msg, onCopy, copied }) {
           color: isUser ? '#fff' : '#1e2b23',
           border: isUser ? 'none' : '1.5px solid #e0f5ea',
           borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-          padding: '12px 16px',
-          fontSize: '.9rem', lineHeight: 1.7,
+          padding: '14px 18px',
+          fontSize: '.96rem', lineHeight: 1.75,
           fontFamily: "'DM Sans',sans-serif",
           boxShadow: isUser ? '0 4px 14px rgba(10,110,63,.18)' : '0 2px 10px rgba(10,110,63,.06)',
         }}>
@@ -141,7 +207,18 @@ function MessageBubble({ msg, onCopy, copied }) {
 export default function AiTutor() {
   const [subject, setSubject] = useState('DSA');
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aiTutorMessages');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Any message still marked "streaming" belongs to a request that died
+      // with the page reload — mark it finished instead of showing dots forever.
+      return parsed.map((m) => (m.streaming ? { ...m, streaming: false } : m));
+    } catch {
+      return [];
+    }
+  });
   const [isStreaming, setIsStreaming] = useState(false);
   const [copied, setCopied] = useState(null);
 
@@ -149,12 +226,17 @@ export default function AiTutor() {
   const textareaRef = useRef(null);
   const abortRef = useRef(null);
   const idCounter = useRef(0);
-  const nextId = () => `m${++idCounter.current}`;
+  const nextId = () => `m${Date.now()}_${++idCounter.current}`;
 
+  // Save chat to localStorage whenever it changes, so a page refresh
+  // (or switching dashboard tabs) doesn't lose the conversation.
   useEffect(() => {
-    console.log('[AiTutor] component MOUNTED');
-    return () => console.log('[AiTutor] component UNMOUNTED');
-  }, []);
+    try {
+      localStorage.setItem('aiTutorMessages', JSON.stringify(messages));
+    } catch {
+      // storage full or unavailable — not critical, just skip persisting
+    }
+  }, [messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -174,12 +256,8 @@ export default function AiTutor() {
     }));
 
   const streamAnswer = useCallback(async (question, historyForApi, aiMsgId) => {
-    console.log('[AiTutor] streamAnswer() called for aiMsgId:', aiMsgId, 'question:', question);
     const controller = new AbortController();
     abortRef.current = controller;
-    controller.signal.addEventListener('abort', () => {
-      console.log('[AiTutor] AbortController fired for aiMsgId:', aiMsgId, new Error().stack);
-    });
     const token = localStorage.getItem('accessToken');
 
     try {
@@ -293,12 +371,8 @@ export default function AiTutor() {
   }, [subject]);
 
   const send = useCallback((questionOverride) => {
-    console.log('[AiTutor] send() called, questionOverride:', questionOverride, 'isStreaming:', isStreaming);
     const question = (questionOverride ?? input).trim();
-    if (!question || isStreaming) {
-      console.log('[AiTutor] send() blocked — empty question or already streaming');
-      return;
-    }
+    if (!question || isStreaming) return;
 
     // Build history from current messages BEFORE adding the new ones —
     // computed here (not inside setMessages) because React can invoke a
@@ -328,6 +402,7 @@ export default function AiTutor() {
     if (isStreaming) abortRef.current?.abort();
     setMessages([]);
     setIsStreaming(false);
+    try { localStorage.removeItem('aiTutorMessages'); } catch {}
   };
 
   const handleCopy = (id, text) => {
@@ -346,7 +421,7 @@ export default function AiTutor() {
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', height: '540px', maxHeight: '68vh',
+      display: 'flex', flexDirection: 'column', height: '660px', maxHeight: '78vh',
       fontFamily: "'DM Sans',sans-serif",
     }}>
       <style>{`
@@ -356,31 +431,42 @@ export default function AiTutor() {
         .ai-scroll::-webkit-scrollbar-track{background:transparent}
         .ai-chip{transition:all .15s}
         .ai-chip:hover{border-color:#0a6e3f !important}
-        .ai-suggest:hover{background:#e6f7ee !important;border-color:#0a6e3f !important}
+        .ai-suggest{transition:all .18s}
+        .ai-suggest:hover{border-color:#0a6e3f !important;transform:translateY(-2px);box-shadow:0 8px 20px rgba(10,110,63,.12) !important}
       `}</style>
 
       {/* HEADER */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexShrink: 0 }}>
-        <div>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '1.05rem', color: '#0a1a12', display: 'flex', alignItems: 'center', gap: 8 }}>
-            🤖 AI Tutor
-            <span style={{
-              fontSize: '.62rem', background: '#e6f7ee', color: '#0a6e3f', padding: '2px 8px',
-              borderRadius: 50, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700,
-              display: 'flex', alignItems: 'center', gap: 4,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1ec97a' }} />
-              LIVE
-            </span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+            background: 'linear-gradient(135deg,#0a6e3f,#1ec97a)',
+            display: 'grid', placeItems: 'center', fontSize: '1.4rem',
+            boxShadow: '0 6px 16px rgba(10,110,63,.25)',
+          }}>
+            🤖
           </div>
-          <p style={{ color: '#5a7a68', fontSize: '.8rem', marginTop: 2 }}>
-            Real-time answers, powered by Gemini
-          </p>
+          <div>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '1.25rem', color: '#0a1a12', display: 'flex', alignItems: 'center', gap: 8 }}>
+              AI Tutor
+              <span style={{
+                fontSize: '.62rem', background: '#e6f7ee', color: '#0a6e3f', padding: '3px 9px',
+                borderRadius: 50, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700,
+                display: 'flex', alignItems: 'center', gap: 4,
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1ec97a' }} />
+                LIVE
+              </span>
+            </div>
+            <p style={{ color: '#5a7a68', fontSize: '.83rem', marginTop: 2 }}>
+              Real-time answers, powered by Gemini
+            </p>
+          </div>
         </div>
         {messages.length > 0 && (
           <button onClick={clearChat} style={{
-            background: 'none', border: '1.5px solid #e0f5ea', color: '#5a7a68',
-            padding: '6px 14px', borderRadius: 50, cursor: 'pointer', fontSize: '.78rem',
+            background: '#fff', border: '1.5px solid #e0f5ea', color: '#5a7a68',
+            padding: '8px 16px', borderRadius: 50, cursor: 'pointer', fontSize: '.8rem',
             fontFamily: "'DM Sans',sans-serif", fontWeight: 600,
           }}>
             🗑 Clear
@@ -389,19 +475,20 @@ export default function AiTutor() {
       </div>
 
       {/* SUBJECT CHIPS */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14, flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18, flexShrink: 0 }}>
         {SUBJECTS.map((s) => (
           <button
             key={s}
             className="ai-chip"
             onClick={() => setSubject(s)}
             style={{
-              padding: '6px 15px', borderRadius: 50, border: '1.5px solid',
+              padding: '8px 18px', borderRadius: 50, border: '1.5px solid',
               borderColor: subject === s ? '#0a6e3f' : '#e0f5ea',
-              background: subject === s ? '#0a6e3f' : 'transparent',
+              background: subject === s ? '#0a6e3f' : '#fff',
               color: subject === s ? '#fff' : '#5a7a68',
-              cursor: 'pointer', fontSize: '.78rem', fontWeight: subject === s ? 700 : 500,
+              cursor: 'pointer', fontSize: '.84rem', fontWeight: subject === s ? 700 : 500,
               fontFamily: "'DM Sans',sans-serif",
+              boxShadow: subject === s ? '0 6px 16px rgba(10,110,63,.22)' : 'none',
             }}
           >
             {s}
@@ -415,11 +502,24 @@ export default function AiTutor() {
         padding: '4px 4px 10px',
       }}>
         {messages.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', gap: 14 }}>
-            <div style={{ textAlign: 'center', color: '#5a7a68', fontSize: '.85rem', marginBottom: 4 }}>
-              Ask a <strong style={{ color: '#0a6e3f' }}>{subject}</strong> question and get an instant, streamed answer 👇
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', gap: 24, padding: '0 8px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: 76, height: 76, borderRadius: 22, margin: '0 auto 18px',
+                background: 'linear-gradient(135deg,#e6f7ee,#c6ead8)',
+                display: 'grid', placeItems: 'center', fontSize: '2.2rem',
+              }}>
+                🤖
+              </div>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '1.3rem', color: '#0a1a12', marginBottom: 6 }}>
+                Ask me anything about <span style={{ color: '#0a6e3f' }}>{subject}</span>
+              </div>
+              <p style={{ color: '#5a7a68', fontSize: '.9rem', maxWidth: 380, margin: '0 auto' }}>
+                Get instant, streamed answers with examples and code — just like chatting with a real tutor.
+              </p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, width: '100%', maxWidth: 640 }}>
               {SUGGESTIONS.map((s, i) => (
                 <button
                   key={i}
@@ -427,12 +527,18 @@ export default function AiTutor() {
                   onClick={() => send(s.text)}
                   style={{
                     textAlign: 'left', background: '#fff', border: '1.5px solid #e0f5ea',
-                    borderRadius: 12, padding: '12px 14px', cursor: 'pointer',
-                    fontSize: '.8rem', color: '#1e2b23', fontFamily: "'DM Sans',sans-serif",
-                    lineHeight: 1.4,
+                    borderRadius: 14, padding: '16px', cursor: 'pointer',
+                    fontFamily: "'DM Sans',sans-serif", display: 'flex', alignItems: 'center', gap: 12,
+                    boxShadow: '0 2px 10px rgba(10,110,63,.05)',
                   }}
                 >
-                  <span style={{ marginRight: 6 }}>{s.emoji}</span>{s.text}
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 11, flexShrink: 0,
+                    background: '#f0fdf7', display: 'grid', placeItems: 'center', fontSize: '1.15rem',
+                  }}>
+                    {s.emoji}
+                  </div>
+                  <span style={{ fontSize: '.87rem', color: '#1e2b23', lineHeight: 1.4 }}>{s.text}</span>
                 </button>
               ))}
             </div>
@@ -471,7 +577,7 @@ export default function AiTutor() {
             placeholder={`Ask a ${subject} question... (Enter to send)`}
             style={{
               flex: 1, border: 'none', outline: 'none', resize: 'none',
-              fontFamily: "'DM Sans',sans-serif", fontSize: '.88rem', lineHeight: 1.5,
+              fontFamily: "'DM Sans',sans-serif", fontSize: '.94rem', lineHeight: 1.6,
               color: '#0a1a12', padding: '8px 0', background: 'transparent', maxHeight: 140,
             }}
           />
@@ -479,7 +585,7 @@ export default function AiTutor() {
             onClick={() => send()}
             disabled={isStreaming || !input.trim()}
             style={{
-              width: 40, height: 40, borderRadius: '50%', flexShrink: 0, border: 'none',
+              width: 46, height: 46, borderRadius: '50%', flexShrink: 0, border: 'none',
               background: (isStreaming || !input.trim()) ? '#a8f0cc' : '#0a6e3f',
               color: '#fff', cursor: (isStreaming || !input.trim()) ? 'not-allowed' : 'pointer',
               fontSize: '1.1rem', display: 'grid', placeItems: 'center', transition: 'background .2s',
